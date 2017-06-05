@@ -29,7 +29,6 @@ public class TestExample {
 		driver.get("http://localhost:8080/");
 		
 		driver.findElement(By.linkText("Register")).click();
-		
 		driver.findElement(By.id("email")).sendKeys("garbarge@garbage.com");
 		driver.findElement(By.id("password")).sendKeys("testpass");
 		driver.findElement(By.id("confirmPassword")).sendKeys("testpass");
