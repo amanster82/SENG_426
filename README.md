@@ -1,5 +1,8 @@
 # acme
 
+## Setup
+Here are the setup instructions for us. Clone this repo into a folder on your computer. From inside this folder run 'npm install' to get the node_modules folder. The node_modules folder is in the .gitignore file so we don't commit it since its "fucking massive". Once you've done that check the src/main/resources/config/application-dev.yml and edit the db info to the correct stuff for whatever machine you are on. You will then need to create a run configuration in Eclipse to run the JUnit tests for the files in the test folder. JUnit usually comes installed in Eclipse so you can just tell it what folder to run on (src/test/java/com/acme). Ask Justin for more details. 
+
 ## Development
 
 #### Required Software
@@ -18,12 +21,12 @@ To configure the system:
 3. Open the configuration file `src/main/resources/config/application-dev.yml` and set:
    1. `spring.datasource.url` with the database host, port and schema (defaults to **localhost**, **3306** and **acme** respectively).
    2. `server.port` with server port (defaults to **8080**)
+#### Building package
+
 
 After that execute `mvn spring-boot:run` from _inside_ the application's folder to run the application and navigate to [http://localhost:8080](http://localhost:8080) in your browser (note the port number might be different according to your configuration and sudo might be necessary for ports below 1024).
 
 ## Distribution
-
-#### Building package
 
 To build a distribution package:
 
