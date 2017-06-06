@@ -52,7 +52,23 @@
         }
 
         function toggleVisible(id) {
-            //TODO show password and change eye icon
+        	
+        	// Change inputs type from 'password' to 'text'
+        	var fieldType = angular.element('#passField'+id).attr('type');
+        	if(fieldType == 'password'){
+        		angular.element('#passField'+id).attr('type', 'text');
+        	} else {
+        		angular.element('#passField'+id).attr('type', 'password');
+        	}
+
+        	// Toggle eye icon
+        	if(fieldType == 'password'){
+        		angular.element('#passField'+id).parent().find('span').addClass('glyphicon-eye-close');
+        		angular.element('#passField'+id).parent().find('span').removeClass('glyphicon-eye-open');
+        	} else {
+        		angular.element('#passField'+id).parent().find('span').addClass('glyphicon-eye-open');
+        		angular.element('#passField'+id).parent().find('span').removeClass('glyphicon-eye-close');
+        	}
         }
 
         function transition() {
