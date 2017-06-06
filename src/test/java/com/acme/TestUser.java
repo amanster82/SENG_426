@@ -19,8 +19,8 @@ public class TestUser {
 	@Before
 	public void setUp() throws Exception {
 		// Uncomment appropriate driver for your system
-		System.setProperty("webdriver.gecko.driver", "webdrivers/win64/geckodriver.exe"); // 64 Bit Windows
-		//System.setProperty("webdriver.gecko.driver", "webdrivers/linux64/geckodriver"); // 64 Bit Linux
+		//System.setProperty("webdriver.gecko.driver", "webdrivers/win64/geckodriver.exe"); // 64 Bit Windows
+		System.setProperty("webdriver.gecko.driver", "webdrivers/linux64/geckodriver"); // 64 Bit Linux
 		
 		// Set up the driver global to this class
 		driver = new FirefoxDriver();
@@ -39,11 +39,14 @@ public class TestUser {
 		driver.findElement(By.cssSelector(".btn")).click();
 		assertTrue(driver.findElement(By.id("account-menu")).isDisplayed());
 	}
-	
 	// AcmePass app should load list of saved passwords
 	@Test
 	public void VisitAcmePass() {
-		
+		this.SignInValid();
+		driver.findElement(By.linkText("ACMEPass")).click();
+		String TestTitle = driver.getTitle();
+		assertEquals("ACMEPasses", TestTitle);
+		//junit.org
 	}
 	
 	// Create a new AcmePass entry for a site and ensure worked
