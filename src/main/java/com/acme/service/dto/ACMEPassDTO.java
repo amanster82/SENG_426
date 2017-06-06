@@ -1,6 +1,8 @@
 package com.acme.service.dto;
 
 import com.acme.domain.ACMEPass;
+import com.acme.domain.User;
+
 import java.time.ZonedDateTime;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -23,6 +25,8 @@ public class ACMEPassDTO {
 
 	private ZonedDateTime lastModifiedDate;
 
+	private User user;
+
 	public ACMEPassDTO() {
 	}
 
@@ -35,6 +39,7 @@ public class ACMEPassDTO {
 		this.password = entity.getPassword();
 		this.createdDate = entity.getCreatedDate();
 		this.lastModifiedDate = entity.getLastModifiedDate();
+		this.user = entity.getUser();
 	}
 
 	public Long getId() {
@@ -63,6 +68,10 @@ public class ACMEPassDTO {
 
 	public String getPassword() {
 		return password;
+	}
+	
+	public User getUser() {
+		return user;
 	}
 
 	public void setPassword(String password) {

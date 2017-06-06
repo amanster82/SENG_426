@@ -31,6 +31,7 @@ import java.util.Optional;
 public class ACMEPassResource {
 
 	private final Logger log = LoggerFactory.getLogger(ACMEPassResource.class);
+	
 
 	@Inject
 	private ACMEPassService acmePassService;

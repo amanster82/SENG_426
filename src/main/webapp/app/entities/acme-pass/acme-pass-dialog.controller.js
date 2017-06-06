@@ -18,6 +18,7 @@
 		vm.clear = clear;
 		vm.users = User.query();
 		vm.pwdVisible = false;
+		vm.toggleVisible = toggleVisible;
 
 		$timeout(function () {
 			angular.element('.form-group:eq(1)>input').focus();
@@ -57,6 +58,27 @@
 
 		function onSaveError() {
 			vm.isSaving = false;
+		}
+		
+		function toggleVisible(){
+			
+			// Change inputs type from 'password' to 'text'
+        	var fieldType = angular.element('#field_password').attr('type');
+        	if(fieldType == 'password'){
+        		angular.element('#field_password').attr('type', 'text');
+        	} else {
+        		angular.element('#field_password').attr('type', 'password');
+        	}
+
+        	// Toggle eye icon
+        	if(fieldType == 'password'){
+        		angular.element('#field_password').parent().find('span').addClass('glyphicon-eye-close');
+        		angular.element('#field_password').parent().find('span').removeClass('glyphicon-eye-open');
+        	} else {
+        		angular.element('#field_password').parent().find('span').addClass('glyphicon-eye-open');
+        		angular.element('#field_password').parent().find('span').removeClass('glyphicon-eye-close');
+        	}
+			
 		}
 
 		vm.datePickerOpenStatus.createdDate = false;
