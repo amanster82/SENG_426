@@ -24,16 +24,17 @@ public class TestUser {
 		
 		// Set up the driver global to this class
 		driver = new FirefoxDriver();
-		driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-		driver.manage().timeouts().pageLoadTimeout(5, TimeUnit.SECONDS);
-		driver.manage().timeouts().setScriptTimeout(5, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
+		driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
+		driver.manage().window().maximize();
 	}
  
 	// Attempt to sign in with valid info and succeed
 	@Test
 	public void SignInValid() {
-		driver.get("http://localhost:8080/#/");
-		driver.findElement(By.linkText("Sign in")).click();
+		driver.get("http://localhost:8080/");
+		driver.findElement(By.id("login")).click();
 		driver.findElement(By.id("username")).sendKeys("frank.paul@acme.com");
 		driver.findElement(By.id("password")).sendKeys("starwars");
 		driver.findElement(By.cssSelector(".btn")).click();
@@ -42,8 +43,8 @@ public class TestUser {
 	// AcmePass app should load list of saved passwords
 	@Test
 	public void VisitAcmePass() {
-		this.SignInValid();
-		driver.findElement(By.linkText("ACMEPass")).click();
+		//this.SignInValid();
+		driver.findElement(By.linkText("ACMEPASS")).click();
 		String TestTitle = driver.getTitle();
 		assertEquals("ACMEPasses", TestTitle);
 		//junit.org
@@ -52,25 +53,48 @@ public class TestUser {
 	// Create a new AcmePass entry for a site and ensure worked
 	@Test
 	public void CreateNewPassValid() {
-		
+		this.SignInValid();
+		this.VisitAcmePass();
+		driver.get("http://localhost:8080/#/acme-pass/new");
+		driver.findElement(By.id("field_site")).sendKeys("testSite.com");
+		driver.findElement(By.id("field_login")).sendKeys("testlogin");
+		driver.findElement(By.id("field_password")).sendKeys("testpass");
+		driver.findElement(By.cssSelector("button[type^=submit]")).click();
+
 	}
 	
 	// Forget to enter a site and check for failure
 	@Test
 	public void CreateNewPassInvalid() {
-		
+		this.SignInValid();
+		this.VisitAcmePass();
+		driver.get("http://localhost:8080/#/acme-pass/new");
+		driver.findElement(By.id("field_login")).sendKeys("testlogin");
+		driver.findElement(By.id("field_password")).sendKeys("testpass");
+		driver.findElement(By.cssSelector("button[disabled^=disabled]"));
 	}
 	
 	// Look at a stored password, ensure its displayed
 	@Test
 	public void ViewSavedPassword() {
+		this.VisitAcmePass();
+		driver.findElement(By.xpath("//tbody/tr[1]"));
 		
 	}
 	
 	// Update a stored password or site name, ensure success
 	@Test
 	public void EditSavedPasswordValid() {
-		
+		this.SignInValid();
+		this.VisitAcmePass();
+		driver.get("http://localhost:8080/#/acme-pass/1/edit");
+		driver.findElement(By.id("field_site")).clear();
+		driver.findElement(By.id("field_site")).sendKeys("modify.com");
+		driver.findElement(By.id("field_login")).clear();
+		driver.findElement(By.id("field_login")).sendKeys("testedit");
+		driver.findElement(By.id("field_password")).clear();
+		driver.findElement(By.id("field_password")).sendKeys("editpass");
+		driver.findElement(By.cssSelector("button[type^=submit]")).click();
 	}
 	
 	// Enter invalid info while editing saved password, ensure fail
