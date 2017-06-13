@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -13,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
 public class TestUser {
@@ -171,18 +171,18 @@ public class TestUser {
 	
 	@Test
 	public void Sorting() {
-		
+		//Boolean isPresent = driver.findElements(By.)
 	}
 	
 	@Test
 	public void Pagination() {
-		ArrayList<String> WebElements = new ArrayList<String>(); 
+		//ArrayList<WebElement> lst = new ArrayList<WebElement>(); 
 		for (int i=0; i<21; i++){
 			this.CreateNewPassValid();
 		}
 		//needs to count rows == 20
-		
-		List<WebElements> = (driver.findElements(By.xpath(".//tbody/tr")));
+		//assertFalse(iselementpresent(driver.))
+		List<WebElement> lst = driver.findElements(By.xpath(".//tbody/tr"));
 		driver.findElement(By.linkText("»")).click(); //go to next page
 		//needs to count rows ==1
 		driver.findElement(By.linkText("«")).click(); //go to first page
