@@ -1,9 +1,11 @@
 package com.acme;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -11,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
 public class TestUser {
@@ -42,7 +45,7 @@ public class TestUser {
 		assertTrue(driver.findElement(By.id("account-menu")).isDisplayed());
 	}
 	// AcmePass app should load list of saved passwords
-	@Test
+	
 	public void VisitAcmePass() {
 		driver.get("http://localhost:8080/#/acme-pass");
 		String TestTitle = driver.getTitle();
@@ -61,50 +64,53 @@ public class TestUser {
 		driver.findElement(By.cssSelector("button[type^=submit]")).click(); //save
 		String site = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
 		assertEquals ("testSite.com", site);
-		String login = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
-		assertEquals ("testSite.com", site);
-		String pass = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
-		assertEquals ("testSite.com", site);
+		String login = driver.findElement(By.xpath("//tbody/tr[1]/td[3]")).getText();
+		assertEquals ("testlogin", login);
+		String pass = driver.findElement(By.xpath("//tbody/tr[1]/td[4]")).getText();
+		assertEquals ("", pass);
 	}
 	
 	// Forget to enter a site and check for failure
 	@Test
 	public void CreateNewPassInvalid() {
-		this.SignInValid();
 		this.VisitAcmePass();
-		driver.get("http://localhost:8080/#/acme-pass/new");
+		driver.findElement(By.cssSelector("button.btn.btn-primary")).click(); //create new
 		driver.findElement(By.id("field_login")).sendKeys("testlogin");
 		driver.findElement(By.id("field_password")).sendKeys("testpass");
 		driver.findElement(By.cssSelector("button[disabled^=disabled]"));
-		System.out.print("Site field missing, worked");
-		
+		driver.findElement(By.cssSelector("button.btn.btn-default")).click(); //cancel create
+		assertFalse (driver.findElement(By.xpath("//tbody/tr[1]")).isDisplayed());
+		driver.findElement(By.cssSelector("button.btn.btn-primary")).click(); //create new
 		driver.findElement(By.id("field_site")).sendKeys("something.com");
 		driver.findElement(By.id("field_login")).clear();
 		driver.findElement(By.id("field_password")).sendKeys("testpass");
 		driver.findElement(By.cssSelector("button[disabled^=disabled]"));
-		System.out.print("login missing, worked");
-		
+		driver.findElement(By.cssSelector("button.btn.btn-default")).click(); //cancel create
+		driver.findElement(By.cssSelector("button.btn.btn-primary")).click(); //create new
 		driver.findElement(By.id("field_site")).sendKeys("something.com");
 		driver.findElement(By.id("field_login")).sendKeys("testpass");
 		driver.findElement(By.id("field_password")).clear();
 		driver.findElement(By.cssSelector("button[disabled^=disabled]"));
-		System.out.print("pass missing, worked");
-
+		driver.findElement(By.cssSelector("button.btn.btn-default")).click(); //cancel create
+		
 	}
 	
 	// Look at a stored password, ensure its displayed
 	@Test
-	public void ViewSavedPassword() {
-		this.VisitAcmePass();
-		driver.findElement(By.xpath("//tbody/tr[1]"));
-		
+	public void ToggleViewSavedPassword() {
+		this.CreateNewPassValid();
+		String pass = driver.findElement(By.xpath("//tbody/tr[1]/td[4]")).getText();
+		assertEquals ("", pass);
+		//need to test on successfull code
+		driver.findElement(By.className("glyphicon glyphicon-eye-open")).click();
+		String passview = driver.findElement(By.xpath("//tbody/tr[1]/td[4]")).getText();
+		assertEquals ("testpass", passview);
 		
 	}
 	
 	// Update a stored password or site name, ensure success
 	@Test
 	public void EditSavedPasswordValid() {
-		this.SignInValid();
 		this.VisitAcmePass();
 		driver.get("http://localhost:8080/#/acme-pass/1/edit");
 		driver.findElement(By.id("field_site")).clear();
@@ -114,13 +120,42 @@ public class TestUser {
 		driver.findElement(By.id("field_password")).clear();
 		driver.findElement(By.id("field_password")).sendKeys("editpass");
 		driver.findElement(By.cssSelector("button[type^=submit]")).click();
-		
+		String site = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
+		assertEquals ("modify.com", site);
+		String login = driver.findElement(By.xpath("//tbody/tr[1]/td[3]")).getText();
+		assertEquals ("testedit", login);
+		String pass = driver.findElement(By.xpath("//tbody/tr[1]/td[4]")).getText();
+		assertEquals ("", pass);
+		//need to test on successfull code
+		driver.findElement(By.className("glyphicon glyphicon-eye-open")).click();
+		String passview = driver.findElement(By.xpath("//tbody/tr[1]/td[4]")).getText();
+		assertEquals ("testpass", passview);
 	}
 	
 	// Enter invalid info while editing saved password, ensure fail
 	@Test
 	public void EditSavedPasswordInvalid() {
-		
+		this.CreateNewPassValid();
+		driver.findElement(By.xpath("//td[7]/div/button")).click(); //edit password
+		driver.findElement(By.id("field_site")).clear();
+		driver.findElement(By.cssSelector("button[disabled^=disabled]"));
+		driver.findElement(By.cssSelector("button.btn.btn-default")).click(); //cancel edit
+		String site = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
+		assertEquals ("testSite.com", site);
+		driver.findElement(By.xpath("//td[7]/div/button")).click(); //edit password
+		driver.findElement(By.id("field_login")).clear();
+		driver.findElement(By.cssSelector("button[disabled^=disabled]"));
+		driver.findElement(By.cssSelector("button.btn.btn-default")).click(); //cancel edit
+		String login = driver.findElement(By.xpath("//tbody/tr[1]/td[3]")).getText();
+		assertEquals ("testlogin", login);
+		driver.findElement(By.xpath("//td[7]/div/button")).click(); //edit password
+		driver.findElement(By.id("field_password")).clear();
+		driver.findElement(By.cssSelector("button[disabled^=disabled]"));
+		driver.findElement(By.cssSelector("button.btn.btn-default")).click(); //cancel edit
+		//need to test on successfull code
+		driver.findElement(By.className("glyphicon glyphicon-eye-open")).click();
+		String passview = driver.findElement(By.xpath("//tbody/tr[1]/td[4]")).getText();
+		assertEquals ("testpass", passview);
 	}
 
 	// Generate a random password and ensure output matches parameters given
@@ -159,6 +194,27 @@ public class TestUser {
 		array[3] = pass;
 		
 		
+		
+	}
+	
+	@Test
+	public void Sorting() {
+		//Boolean isPresent = driver.findElements(By.)
+	}
+	
+	@Test
+	public void Pagination() {
+		//ArrayList<WebElement> lst = new ArrayList<WebElement>(); 
+		for (int i=0; i<21; i++){
+			this.CreateNewPassValid();
+		}
+		//needs to count rows == 20
+		//assertFalse(iselementpresent(driver.))
+		List<WebElement> lst = driver.findElements(By.xpath(".//tbody/tr"));
+		driver.findElement(By.linkText("»")).click(); //go to next page
+		//needs to count rows ==1
+		driver.findElement(By.linkText("«")).click(); //go to first page
+		//needs to count rows again == 20
 		
 	}
 	
