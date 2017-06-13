@@ -2,6 +2,7 @@ package com.acme;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import java.util.concurrent.TimeUnit;
 
@@ -131,10 +132,42 @@ public class TestUser {
 	// Delete saved password and ensure it is removed
 	@Test
 	public void DeleteSavedPassword() {
+		String array [] = new String [3];
+		this.VisitAcmePass();
+		driver.findElement(By.xpath("//button[2]")).click();
+		driver.findElement(By.cssSelector("button.btn.btn-default")).click();
+		String site = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
+		assertEquals ("testsite.com", site);
+		array[0] = site;
+		String login = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
+		assertEquals ("testsite.com", login);
+		array[2] = login;
+		String pass = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
+		assertEquals ("testsite.com", pass);
+		array[3] = pass;
+		
+		driver.findElement(By.xpath("//button[2]")).click();
+		driver.findElement(By.cssSelector("button.btn.btn-danger[type^=submit]")).click();
+		String site = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
+		assertEquals ("testsite.com", site);
+		array[0] = site;
+		String login = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
+		assertEquals ("testsite.com", login);
+		array[2] = login;
+		String pass = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
+		assertEquals ("testsite.com", pass);
+		array[3] = pass;
+		
+		
 		
 	}
 	
 	
+	private void assertFalse(String string) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		// Once the tests are done, close down the webdriver
