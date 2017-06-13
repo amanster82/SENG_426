@@ -13,6 +13,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
+import io.advantageous.boon.core.Sys;
+
 public class TestUser {
 	WebDriver driver;
 	
@@ -28,10 +30,11 @@ public class TestUser {
 		driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
 		driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
 		driver.manage().window().maximize();
+		this.SignInValid();
 	}
  
 	// Attempt to sign in with valid info and succeed
-	@Test
+	
 	public void SignInValid() {
 		driver.get("http://localhost:8080/");
 		driver.findElement(By.id("login")).click();
@@ -59,8 +62,9 @@ public class TestUser {
 		driver.findElement(By.id("field_site")).sendKeys("testSite.com");
 		driver.findElement(By.id("field_login")).sendKeys("testlogin");
 		driver.findElement(By.id("field_password")).sendKeys("testpass");
-		driver.findElement(By.cssSelector("button[type^=submit]")).click();
-
+		driver.findElement(By.cssSelector("button[type^=submit]")).click(); //save
+		String site = driver.findElement(By.id("field_site"));
+		assertEquals ("testSite.com", site);
 	}
 	
 	// Forget to enter a site and check for failure
@@ -72,6 +76,20 @@ public class TestUser {
 		driver.findElement(By.id("field_login")).sendKeys("testlogin");
 		driver.findElement(By.id("field_password")).sendKeys("testpass");
 		driver.findElement(By.cssSelector("button[disabled^=disabled]"));
+		System.out.print("Site field missing, worked");
+		
+		driver.findElement(By.id("field_site")).sendKeys("something.com");
+		driver.findElement(By.id("field_login")).clear();
+		driver.findElement(By.id("field_password")).sendKeys("testpass");
+		driver.findElement(By.cssSelector("button[disabled^=disabled]"));
+		System.out.print("login missing, worked");
+		
+		driver.findElement(By.id("field_site")).sendKeys("something.com");
+		driver.findElement(By.id("field_login")).sendKeys("testpass");
+		driver.findElement(By.id("field_password")).clear();
+		driver.findElement(By.cssSelector("button[disabled^=disabled]"));
+		System.out.print("pass missing, worked");
+
 	}
 	
 	// Look at a stored password, ensure its displayed
@@ -79,6 +97,7 @@ public class TestUser {
 	public void ViewSavedPassword() {
 		this.VisitAcmePass();
 		driver.findElement(By.xpath("//tbody/tr[1]"));
+		
 		
 	}
 	
