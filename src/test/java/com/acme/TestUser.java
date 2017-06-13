@@ -1,8 +1,8 @@
 package com.acme;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -10,10 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
-
-import io.advantageous.boon.core.Sys;
 
 public class TestUser {
 	WebDriver driver;
@@ -46,8 +43,7 @@ public class TestUser {
 	// AcmePass app should load list of saved passwords
 	@Test
 	public void VisitAcmePass() {
-		//this.SignInValid();
-		driver.findElement(By.linkText("ACMEPASS")).click();
+		driver.get("http://localhost:8080/#/acme-pass");
 		String TestTitle = driver.getTitle();
 		assertEquals("ACMEPasses", TestTitle);
 		//junit.org
@@ -56,14 +52,17 @@ public class TestUser {
 	// Create a new AcmePass entry for a site and ensure worked
 	@Test
 	public void CreateNewPassValid() {
-		this.SignInValid();
 		this.VisitAcmePass();
 		driver.get("http://localhost:8080/#/acme-pass/new");
 		driver.findElement(By.id("field_site")).sendKeys("testSite.com");
 		driver.findElement(By.id("field_login")).sendKeys("testlogin");
 		driver.findElement(By.id("field_password")).sendKeys("testpass");
 		driver.findElement(By.cssSelector("button[type^=submit]")).click(); //save
-		String site = driver.findElement(By.id("field_site"));
+		String site = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
+		assertEquals ("testSite.com", site);
+		String login = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
+		assertEquals ("testSite.com", site);
+		String pass = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
 		assertEquals ("testSite.com", site);
 	}
 	
@@ -114,6 +113,7 @@ public class TestUser {
 		driver.findElement(By.id("field_password")).clear();
 		driver.findElement(By.id("field_password")).sendKeys("editpass");
 		driver.findElement(By.cssSelector("button[type^=submit]")).click();
+		
 	}
 	
 	// Enter invalid info while editing saved password, ensure fail
