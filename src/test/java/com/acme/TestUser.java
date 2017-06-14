@@ -5,6 +5,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -167,34 +170,71 @@ public class TestUser {
 	// Delete saved password and ensure it is removed
 	@Test
 	public void DeleteSavedPassword() {
-		String array [] = new String [3];
 		this.VisitAcmePass();
+		driver.get("http://localhost:8080/#/acme-pass/new");
+		driver.findElement(By.id("field_site")).sendKeys("testSite.com");
+		driver.findElement(By.id("field_login")).sendKeys("testlogin");
+		driver.findElement(By.id("field_password")).sendKeys("testpass");
+		driver.findElement(By.cssSelector("button[type^=submit]")).click(); //save
+		
+		driver.get("http://localhost:8080/#/acme-pass?sort=createdDate,desc");
+		List<WebElement> elements = driver.findElements(By.xpath("//tbody/tr"));
+		Collection<String> startElements = new ArrayList<String>();
+		
+		Iterator<WebElement> iter = elements.iterator();				
+		while (iter.hasNext())
+		{
+			WebElement item = iter.next();
+			String label = item.getText();
+			startElements.add(label);
+		}
+		
+		WebElement passwordRow = driver.findElement(By.xpath("//tbody/tr[1]"));
 		driver.findElement(By.xpath("//button[2]")).click();
 		driver.findElement(By.cssSelector("button.btn.btn-default")).click();
 		String site = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
-		assertEquals ("testsite.com", site);
-		array[0] = site;
-		String login = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
-		assertEquals ("testsite.com", login);
-		array[2] = login;
-		String pass = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
-		assertEquals ("testsite.com", pass);
-		array[3] = pass;
+		assertEquals ("testSite.com", site);
+		String login = driver.findElement(By.xpath("//tbody/tr[1]/td[3]")).getText();
+		assertEquals ("testlogin", login);
+		driver.findElement(By.className("glyphicon glyphicon-eye-open")).click();
+		String passview = driver.findElement(By.xpath("//tbody/tr[1]/td[4]")).getText();
+		assertEquals ("testpass", passview);
+		elements = driver.findElements(By.xpath("//tbody/tr"));
 		
+		Collection<String> midElements = new ArrayList<String>();
+		
+		Iterator<WebElement> iter2 = elements.iterator();				
+		while (iter2.hasNext())
+		{
+			WebElement item = iter2.next();
+			String label = item.getText();
+			midElements.add(label);
+		}
+		
+		assertTrue("Cancel button doesnt work", startElements.equals(midElements));
 		driver.findElement(By.xpath("//button[2]")).click();
 		driver.findElement(By.cssSelector("button.btn.btn-danger[type^=submit]")).click();
-		String site = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
-		assertEquals ("testsite.com", site);
-		array[0] = site;
-		String login = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
-		assertEquals ("testsite.com", login);
-		array[2] = login;
-		String pass = driver.findElement(By.xpath("//tbody/tr[1]/td[2]")).getText();
-		assertEquals ("testsite.com", pass);
-		array[3] = pass;
+		elements = driver.findElements(By.xpath("//tbody/tr"));
 		
+		Collection<String> lastElements = new ArrayList<String>();
+		Iterator<WebElement> iter3 = elements.iterator();
+		while (iter3.hasNext())
+		{
+			WebElement item = iter3.next();
+			String label = item.getText();
+			lastElements.add(label);
+		}
 		
+		startElements.removeAll(lastElements);
 		
+		if(!startElements.isEmpty())
+		{
+			assertTrue("Incorrect password removed", startElements.contains(passwordRow));
+		}
+		else
+		{
+			assertTrue("Password wasn't removed", false);
+		}		
 	}
 	
 	@Test
