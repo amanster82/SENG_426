@@ -7,6 +7,7 @@ import static org.junit.Assert.assertFalse;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -237,9 +238,60 @@ public class TestUser {
 		}		
 	}
 	
+	public List<String> elementsToArray(List<WebElement> webElements, int column){
+		List<String> unsortedElements = new ArrayList<String>();
+		
+		Iterator<WebElement> iter = webElements.iterator();				
+		while (iter.hasNext())
+		{
+			WebElement item = iter.next();
+			String label = item.findElement(By.xpath("td["+column+"]")).getText();
+			unsortedElements.add(label);
+		}
+		return unsortedElements;
+	}
+	
 	@Test
 	public void Sorting() {
 		//Boolean isPresent = driver.findElements(By.)
+		driver.get("http://localhost:8080/#/acme-pass");
+		
+		List<WebElement> elements = driver.findElements(By.xpath("//tbody/tr"));
+		List<String> unsortedElements = elementsToArray(elements, 1);
+		List<String> sortedElements = new ArrayList<String>(unsortedElements);
+		Collections.sort(sortedElements);
+		assertTrue("List sorted incorrectly", sortedElements.equals(unsortedElements));
+		
+		driver.findElement(By.xpath("//thead/tr/th[1]")).click();
+		
+		elements = driver.findElements(By.xpath("//tbody/tr"));
+		unsortedElements = elementsToArray(elements, 1);
+		sortedElements = new ArrayList<String>(unsortedElements);
+		Collections.sort(sortedElements);
+		Collections.reverse(sortedElements);
+		assertTrue("Reverse List sorted incorrectly", sortedElements.equals(unsortedElements));
+		
+		for(int x = 2; x <= 6; x++)
+		{
+			driver.findElement(By.xpath("//thead/tr/th["+x+"]")).click();
+			
+			elements = driver.findElements(By.xpath("//tbody/tr"));
+			unsortedElements = elementsToArray(elements, x);
+			sortedElements = new ArrayList<String>(unsortedElements);
+			Collections.sort(sortedElements);
+			assertTrue("List sorted incorrectly: " + x, sortedElements.equals(unsortedElements));
+			
+			driver.findElement(By.xpath("//thead/tr/th["+x+"]")).click();
+			
+			elements = driver.findElements(By.xpath("//tbody/tr"));
+			unsortedElements = elementsToArray(elements, x);
+			sortedElements = new ArrayList<String>(unsortedElements);
+			Collections.sort(sortedElements);
+			Collections.reverse(sortedElements);
+			assertTrue("Reverse List sorted incorrectly: " + x, sortedElements.equals(unsortedElements));
+		}
+		
+		
 	}
 	
 	@Test
