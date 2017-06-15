@@ -33,14 +33,15 @@ public class TestUser {
 		
 		// Set up the driver global to this class
 		driver = new FirefoxDriver();
-		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
-		driver.manage().timeouts().pageLoadTimeout(15, TimeUnit.SECONDS);
-		driver.manage().timeouts().setScriptTimeout(15, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
+		driver.manage().timeouts().pageLoadTimeout(1, TimeUnit.SECONDS);
+		driver.manage().timeouts().setScriptTimeout(1, TimeUnit.SECONDS);
 		driver.manage().window().maximize();
 		this.SignInValid();
 	}
  
 	// Attempt to sign in with valid info and succeed
+	
 	
 	public void SignInValid() {
 		driver.get("http://localhost:8080/");
@@ -51,6 +52,7 @@ public class TestUser {
 		assertTrue(driver.findElement(By.id("account-menu")).isDisplayed());
 	}
 	// AcmePass app should load list of saved passwords
+	
 	
 	public void VisitAcmePass() {
 		driver.get("http://localhost:8080/#/acme-pass");
@@ -77,22 +79,16 @@ public class TestUser {
 	}
 	
 	public void GeneratePass(String pass) {
-		//this.VisitAcmePass();
-		//driver.get("http://localhost:8080/#/acme-pass");
 		
-		//driver.findElement(By.linkText("ACMEPass")).click();
-		//driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-		//driver.findElement(By.xpath("//button[text()='Create new ACME Pass']")).click();
-		//driver.findElement(By.xpath("//button[contains(.,'Create new ACME Pass')]")).click();
-		//driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
-		WebDriverWait wait = new WebDriverWait(driver, 20, 2000);
-		driver.get("http://localhost:8080/#/acme-pass/new");
-		wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("field_site")));
-		driver.findElement(By.id("field_site")).sendKeys(pass);
-		driver.findElement(By.id("field_login")).sendKeys(pass);
-		driver.findElement(By.id("field_password")).sendKeys(pass);
-		driver.findElement(By.cssSelector("button[type^=submit]")).click(); //save
-		isElementPresent(By.id("modal-dialog modal-lg"));
+		if(	(isElementPresent(By.id("modal-dialog modal-lg"))) == false) {
+			WebDriverWait wait = new WebDriverWait(driver, 5);
+			driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("field_site")));
+			driver.findElement(By.id("field_site")).sendKeys(pass);
+			driver.findElement(By.id("field_login")).sendKeys(pass);
+			driver.findElement(By.id("field_password")).sendKeys(pass);
+			driver.findElement(By.cssSelector("button[type^=submit]")).click();
+		}
 	}
 	
 	public boolean isElementPresent(By locatorKey) {
@@ -106,9 +102,11 @@ public class TestUser {
 	    }
 	}
 
-	public boolean isElementVisible(String cssLocator){
+/*	public boolean isElementVisible(String cssLocator){
 	    return driver.findElement(By.cssSelector(cssLocator)).isDisplayed();
 	}
+*/
+	
 	
 	// Forget to enter a site and check for failure
 	@Test
@@ -425,28 +423,19 @@ public class TestUser {
 	@Test
 	public void Pagination() {
 		
+		this.VisitAcmePass();
+		
 		for (int i=0; i<21; i++){
-			this.GeneratePass("password" + Integer.toString(i));
+			this.GeneratePass("password" + Integer.toString(i)); // Generate Passwords.
 		}
 	
-
-		//needs to count rows == 20
-		//assertFalse(iselementpresent(driver.))
-		
-	//	driver.get("http://localhost:8080/#/acme-pass");
-	//	System.out.println("it got here.");		
-	//	driver.findElement(By.linkText("ACMEPASS")).click();
-
-	
 		driver.findElement(By.xpath("//tbody/tr[20]")).isDisplayed();
-
 		driver.findElement(By.linkText("»")).click(); //go to next page
 		//needs to count rows ==1
 		driver.findElement(By.xpath("//tbody/tr[1]")).isDisplayed();
 		driver.findElement(By.linkText("«")).click(); //go to first page
 		//needs to count rows again == 20
 		driver.findElement(By.xpath("//tbody/tr[20]")).isDisplayed();
-		
 		
 	}
 	
