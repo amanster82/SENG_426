@@ -1,16 +1,17 @@
 package com.acme;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,9 +32,9 @@ public class TestUser {
 		
 		// Set up the driver global to this class
 		driver = new FirefoxDriver();
-		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-		driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
-		driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+		driver.manage().timeouts().pageLoadTimeout(15, TimeUnit.SECONDS);
+		driver.manage().timeouts().setScriptTimeout(15, TimeUnit.SECONDS);
 		driver.manage().window().maximize();
 		this.SignInValid();
 	}
@@ -74,27 +75,26 @@ public class TestUser {
 		assertEquals ("", pass);
 	}
 	
-	// Forget to enter a site and check for failure
+	// Forget to enter a value and check that the create button is disabled
 	@Test
 	public void CreateNewPassInvalid() {
 		this.VisitAcmePass();
 		driver.findElement(By.cssSelector("button.btn.btn-primary")).click(); //create new
 		driver.findElement(By.id("field_login")).sendKeys("testlogin");
 		driver.findElement(By.id("field_password")).sendKeys("testpass");
-		driver.findElement(By.cssSelector("button[disabled^=disabled]"));
+		assertTrue(driver.findElement(By.cssSelector("button[disabled^=disabled]")).isDisplayed()); //button disabled
 		driver.findElement(By.cssSelector("button.btn.btn-default")).click(); //cancel create
-		assertFalse (driver.findElement(By.xpath("//tbody/tr[1]")).isDisplayed());
 		driver.findElement(By.cssSelector("button.btn.btn-primary")).click(); //create new
 		driver.findElement(By.id("field_site")).sendKeys("something.com");
 		driver.findElement(By.id("field_login")).clear();
 		driver.findElement(By.id("field_password")).sendKeys("testpass");
-		driver.findElement(By.cssSelector("button[disabled^=disabled]"));
+		assertTrue(driver.findElement(By.cssSelector("button[disabled^=disabled]")).isDisplayed());//button disabled
 		driver.findElement(By.cssSelector("button.btn.btn-default")).click(); //cancel create
 		driver.findElement(By.cssSelector("button.btn.btn-primary")).click(); //create new
 		driver.findElement(By.id("field_site")).sendKeys("something.com");
 		driver.findElement(By.id("field_login")).sendKeys("testpass");
 		driver.findElement(By.id("field_password")).clear();
-		driver.findElement(By.cssSelector("button[disabled^=disabled]"));
+		assertTrue(driver.findElement(By.cssSelector("button[disabled^=disabled]")).isDisplayed());//button disabled
 		driver.findElement(By.cssSelector("button.btn.btn-default")).click(); //cancel create
 		
 	}
@@ -105,8 +105,7 @@ public class TestUser {
 		this.CreateNewPassValid();
 		String pass = driver.findElement(By.xpath("//tbody/tr[1]/td[4]")).getText();
 		assertEquals ("", pass);
-		//need to test on successfull code
-		driver.findElement(By.className("glyphicon glyphicon-eye-open")).click();
+		driver.findElement(By.className("glyphicon-eye-open")).click();
 		String passview = driver.findElement(By.xpath("//tbody/tr[1]/td[4]")).getText();
 		assertEquals ("testpass", passview);
 		
@@ -115,8 +114,9 @@ public class TestUser {
 	// Update a stored password or site name, ensure success
 	@Test
 	public void EditSavedPasswordValid() {
-		this.VisitAcmePass();
+		this.CreateNewPassValid();
 		driver.get("http://localhost:8080/#/acme-pass/1/edit");
+		driver.findElement(By.className("btn-info")).click();
 		driver.findElement(By.id("field_site")).clear();
 		driver.findElement(By.id("field_site")).sendKeys("modify.com");
 		driver.findElement(By.id("field_login")).clear();
@@ -130,8 +130,7 @@ public class TestUser {
 		assertEquals ("testedit", login);
 		String pass = driver.findElement(By.xpath("//tbody/tr[1]/td[4]")).getText();
 		assertEquals ("", pass);
-		//need to test on successfull code
-		driver.findElement(By.className("glyphicon glyphicon-eye-open")).click();
+		driver.findElement(By.className("glyphicon-eye-open")).click();
 		String passview = driver.findElement(By.xpath("//tbody/tr[1]/td[4]")).getText();
 		assertEquals ("testpass", passview);
 	}
@@ -156,8 +155,7 @@ public class TestUser {
 		driver.findElement(By.id("field_password")).clear();
 		driver.findElement(By.cssSelector("button[disabled^=disabled]"));
 		driver.findElement(By.cssSelector("button.btn.btn-default")).click(); //cancel edit
-		//need to test on successfull code
-		driver.findElement(By.className("glyphicon glyphicon-eye-open")).click();
+		driver.findElement(By.className("glyphicon-eye-open")).click();
 		String passview = driver.findElement(By.xpath("//tbody/tr[1]/td[4]")).getText();
 		assertEquals ("testpass", passview);
 	}
@@ -165,6 +163,103 @@ public class TestUser {
 	// Generate a random password and ensure output matches parameters given
 	@Test
 	public void UsePasswordGenerator() {
+		this.VisitAcmePass();
+		driver.findElement(By.cssSelector("button.btn.btn-primary")).click(); //create new
+		driver.findElement(By.cssSelector("button.btn.btn-primary")).click(); //click generate password
+		
+		
+		//select only lower case characters of length 8
+		
+		driver.findElement(By.id("field_upper")).click();
+		driver.findElement(By.id("field_digits")).click();
+		driver.findElement(By.id("field_special")).click();
+		driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
+		String genlowpass = driver.findElement(By.id("field_password")).getAttribute("value");
+		System.out.println("does it get here?" + genlowpass); 
+		assertTrue (genlowpass.matches("^[a-z]+$"));
+		assertTrue (genlowpass.length() == 8);
+		
+		//select only upper case characters of length 8
+		 
+		driver.findElement(By.id("field_lower")).click();
+		driver.findElement(By.id("field_upper")).click();
+		driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
+		String genuppass = driver.findElement(By.id("field_password")).getAttribute("value");
+		System.out.println("does it get here?" + genuppass); 
+		assertTrue (genuppass.matches("^[A-Z]+$"));
+		assertTrue (genuppass.length() == 8);
+		
+		
+		//select only special characters of length 8
+		String splChrs = "!@#$%-_";
+		driver.findElement(By.id("field_upper")).click();
+		driver.findElement(By.id("field_special")).click();
+		driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
+		String genspecpass = driver.findElement(By.id("field_password")).getAttribute("value");
+		System.out.println("does it get here?" + genspecpass); 
+		assertTrue (genspecpass.matches("^[" + splChrs + "]+$"));
+		assertTrue (genspecpass.length() == 8);
+		
+		
+		//select only digits characters of length 8
+		driver.findElement(By.id("field_digits")).click();
+		driver.findElement(By.id("field_special")).click();
+		driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
+		String gendigpass = driver.findElement(By.id("field_password")).getAttribute("value");
+		System.out.println("does it get here?" + gendigpass); 
+		assertTrue (gendigpass.matches("^\\d+$"));
+		assertTrue (gendigpass.length() == 8);
+		
+		
+		//select all characters types of length 30
+		driver.findElement(By.id("field_lower")).click();
+		driver.findElement(By.id("field_upper")).click();
+		driver.findElement(By.id("field_special")).click();
+		driver.findElement(By.id("field_length")).clear();
+		driver.findElement(By.id("field_length")).sendKeys("30");
+		driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
+		String genpass = driver.findElement(By.id("field_password")).getAttribute("value");
+		assertTrue (gendigpass.matches("^\\d+$"));
+		boolean total = genpass.matches("^[A-Za-z\\d!@#$%-_]+$");
+		boolean lower = genpass.matches(".*[a-z]+.*");
+		boolean upper = genpass.matches(".*[A-Z]+.*");
+		boolean digits = genpass.matches(".*\\d+.*");
+		boolean special = genpass.matches(".*["+ splChrs +"]+.*");
+		System.out.println("Booleans: " + total + " " + lower + " " + upper + " " + digits + " " + " " + special);
+		System.out.println("does it get here?" + genpass); 
+		assertTrue (genpass.length() == 30);
+		assertTrue(lower&&upper&&digits&&special&&total);
+		
+		//select all characters types of length 30 no repeats
+		driver.findElement(By.id("field_repetition")).click();
+		driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
+		genpass = driver.findElement(By.id("field_password")).getAttribute("value");
+		assertTrue (gendigpass.matches("^\\d+$"));
+		total = genpass.matches("^[A-Za-z\\d!@#$%-_]+$");
+		lower = genpass.matches(".*[a-z]+.*");
+		upper = genpass.matches(".*[A-Z]+.*");
+		digits = genpass.matches(".*\\d+.*");
+		special = genpass.matches(".*["+ splChrs +"].*");
+		System.out.println("does it get here?" + genpass); 
+		assertTrue (genpass.length() == 30);
+		
+		boolean noRepeats = true;
+		Map<Character, String> map1 = new HashMap<Character, String>();
+		for(int index = 0; index < genpass.length(); index++)
+		{
+			noRepeats &= !map1.containsKey(genpass.charAt(index));
+			map1.put(genpass.charAt(index), "1");
+		}
+		System.out.println("Booleans: " + total + " " + lower + " " + upper + " " + digits + " " + " " + special + " " + noRepeats);
+		
+		assertTrue(lower&&upper&&digits&&special&&total&&noRepeats);
+		
+		//test with no rules selected the generate password button is not enabled
+		driver.findElement(By.id("field_lower")).click();
+		driver.findElement(By.id("field_upper")).click();
+		driver.findElement(By.id("field_digits")).click();
+		driver.findElement(By.id("field_special")).click();
+		assertTrue(driver.findElement(By.cssSelector("button[disabled^=disabled]")).isDisplayed()); //button disabled
 		
 	}
 	
@@ -197,7 +292,7 @@ public class TestUser {
 		assertEquals ("testSite.com", site);
 		String login = driver.findElement(By.xpath("//tbody/tr[1]/td[3]")).getText();
 		assertEquals ("testlogin", login);
-		driver.findElement(By.className("glyphicon glyphicon-eye-open")).click();
+		driver.findElement(By.className("glyphicon-eye-open")).click();
 		String passview = driver.findElement(By.xpath("//tbody/tr[1]/td[4]")).getText();
 		assertEquals ("testpass", passview);
 		elements = driver.findElements(By.xpath("//tbody/tr"));
@@ -290,8 +385,6 @@ public class TestUser {
 			Collections.reverse(sortedElements);
 			assertTrue("Reverse List sorted incorrectly: " + x, sortedElements.equals(unsortedElements));
 		}
-		
-		
 	}
 	
 	@Test
@@ -302,7 +395,7 @@ public class TestUser {
 		}
 		//needs to count rows == 20
 		//assertFalse(iselementpresent(driver.))
-		List<WebElement> lst = driver.findElements(By.xpath(".//tbody/tr"));
+		//List<WebElement> lst = driver.findElements(By.xpath(".//tbody/tr"));
 		driver.findElement(By.linkText("»")).click(); //go to next page
 		//needs to count rows ==1
 		driver.findElement(By.linkText("«")).click(); //go to first page
@@ -310,15 +403,10 @@ public class TestUser {
 		
 	}
 	
-	
-	private void assertFalse(String string) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@After
 	public void tearDown() throws Exception {
-		// Once the tests are done, close down the webdriver
+		// Once the tests are done close down the webdriver
 		driver.close();
 	}
 
