@@ -78,10 +78,16 @@ public class TestUser {
 	
 	public void GeneratePass(String pass) {
 		//this.VisitAcmePass();
-		driver.get("http://localhost:8080/#/acme-pass");
-		driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
-		WebDriverWait wait = new WebDriverWait(driver, 10);
-		WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("field_site")));
+		//driver.get("http://localhost:8080/#/acme-pass");
+		
+		//driver.findElement(By.linkText("ACMEPass")).click();
+		//driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+		//driver.findElement(By.xpath("//button[text()='Create new ACME Pass']")).click();
+		//driver.findElement(By.xpath("//button[contains(.,'Create new ACME Pass')]")).click();
+		//driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
+		WebDriverWait wait = new WebDriverWait(driver, 20, 2000);
+		driver.get("http://localhost:8080/#/acme-pass/new");
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("field_site")));
 		driver.findElement(By.id("field_site")).sendKeys(pass);
 		driver.findElement(By.id("field_login")).sendKeys(pass);
 		driver.findElement(By.id("field_password")).sendKeys(pass);
@@ -430,6 +436,7 @@ public class TestUser {
 	//	driver.get("http://localhost:8080/#/acme-pass");
 	//	System.out.println("it got here.");		
 	//	driver.findElement(By.linkText("ACMEPASS")).click();
+
 	
 		driver.findElement(By.xpath("//tbody/tr[20]")).isDisplayed();
 
