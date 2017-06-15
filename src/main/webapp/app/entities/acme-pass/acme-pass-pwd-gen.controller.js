@@ -13,6 +13,7 @@
         vm.clear = clear;
         vm.generate = generate;
         vm.save = save;
+        vm.checkSufficient = checkSufficient;
 
         vm.genOptions = {
             length: 8,
@@ -75,6 +76,17 @@
         function save() {
             $scope.$emit('acmeApp:ACMEPassPwdGen', vm.password);
             $uibModalInstance.close(vm.password);
+        }
+        
+        // Checks to make sure that the user has some characters selected in the generation modal
+        // If no possible characters selected, the 'Generate' button is disabled
+        function checkSufficient(){
+        	var selected = angular.element('.character-option:checked').length;
+        	if(selected == 0){
+        		angular.element('#generateSubmit').prop('disabled', true);
+        	} else {
+        		angular.element('#generateSubmit').prop('disabled', false);
+        	}
         }
     }
 })();
