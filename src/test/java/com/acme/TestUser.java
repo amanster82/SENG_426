@@ -1,9 +1,7 @@
 package com.acme;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,6 +17,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class TestUser {
 	WebDriver driver;
@@ -60,7 +60,7 @@ public class TestUser {
 	// Create a new AcmePass entry for a site and ensure worked
 	@Test
 	public void CreateNewPassValid() {
-		this.VisitAcmePass();
+		//this.VisitAcmePass();
 		driver.get("http://localhost:8080/#/acme-pass/new");
 		driver.findElement(By.id("field_site")).sendKeys("testSite.com");
 		driver.findElement(By.id("field_login")).sendKeys("testlogin");
@@ -72,6 +72,18 @@ public class TestUser {
 		assertEquals ("testlogin", login);
 		String pass = driver.findElement(By.xpath("//tbody/tr[1]/td[4]")).getText();
 		assertEquals ("", pass);
+	}
+	
+	public void GeneratePass(String pass) {
+		//this.VisitAcmePass();
+		driver.get("http://localhost:8080/#/acme-pass");
+		driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
+		WebDriverWait wait = new WebDriverWait(driver, 10);
+		WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("field_site")));
+		driver.findElement(By.id("field_site")).sendKeys(pass);
+		driver.findElement(By.id("field_login")).sendKeys(pass);
+		driver.findElement(By.id("field_password")).sendKeys(pass);
+		driver.findElement(By.cssSelector("button[type^=submit]")).click(); //save
 	}
 	
 	// Forget to enter a site and check for failure
@@ -296,17 +308,27 @@ public class TestUser {
 	
 	@Test
 	public void Pagination() {
-		//ArrayList<WebElement> lst = new ArrayList<WebElement>(); 
-		for (int i=0; i<21; i++){
-			this.CreateNewPassValid();
+		
+	/*	for (int i=0; i<21; i++){
+			this.GeneratePass("password" + Integer.toString(i));
 		}
+	*/
+
 		//needs to count rows == 20
 		//assertFalse(iselementpresent(driver.))
-		List<WebElement> lst = driver.findElements(By.xpath(".//tbody/tr"));
+		
+	//	driver.get("http://localhost:8080/#/acme-pass");
+	//	System.out.println("it got here.");		
+		driver.findElement(By.linkText("ACMEPASS")).click();
+	
+		driver.findElement(By.xpath("//tbody/tr[20]")).isDisplayed();
 		driver.findElement(By.linkText("»")).click(); //go to next page
 		//needs to count rows ==1
+		driver.findElement(By.xpath("//tbody/tr[1]")).isDisplayed();
 		driver.findElement(By.linkText("«")).click(); //go to first page
 		//needs to count rows again == 20
+		driver.findElement(By.xpath("//tbody/tr[20]")).isDisplayed();
+		
 		
 	}
 	
