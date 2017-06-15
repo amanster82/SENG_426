@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -87,6 +86,22 @@ public class TestUser {
 		driver.findElement(By.id("field_login")).sendKeys(pass);
 		driver.findElement(By.id("field_password")).sendKeys(pass);
 		driver.findElement(By.cssSelector("button[type^=submit]")).click(); //save
+		isElementPresent(By.id("modal-dialog modal-lg"));
+	}
+	
+	public boolean isElementPresent(By locatorKey) {
+	    try {
+	        driver.findElement(locatorKey);
+	        System.out.println("the modal is present.");
+	        return true;
+	    } catch (org.openqa.selenium.NoSuchElementException e) {
+	    	System.out.println("the modal is closed");
+	    	return false;
+	    }
+	}
+
+	public boolean isElementVisible(String cssLocator){
+	    return driver.findElement(By.cssSelector(cssLocator)).isDisplayed();
 	}
 	
 	// Forget to enter a site and check for failure
@@ -404,17 +419,17 @@ public class TestUser {
 	@Test
 	public void Pagination() {
 		
-	/*	for (int i=0; i<21; i++){
+		for (int i=0; i<21; i++){
 			this.GeneratePass("password" + Integer.toString(i));
 		}
-	*/
+	
 
 		//needs to count rows == 20
 		//assertFalse(iselementpresent(driver.))
 		
 	//	driver.get("http://localhost:8080/#/acme-pass");
 	//	System.out.println("it got here.");		
-		driver.findElement(By.linkText("ACMEPASS")).click();
+	//	driver.findElement(By.linkText("ACMEPASS")).click();
 	
 		driver.findElement(By.xpath("//tbody/tr[20]")).isDisplayed();
 
