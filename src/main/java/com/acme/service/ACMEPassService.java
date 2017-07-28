@@ -79,7 +79,19 @@ public class ACMEPassService {
 	@Transactional(readOnly = true)
 	public ACMEPassDTO findOne(Long id) {
 		log.debug("Request to get ACMEPass : {}", id);
-		return new ACMEPassDTO(acmePassRepository.findOne(id));
+	
+		// Find the required objects to make sure this is my login
+		ACMEPassDTO userDTO = new ACMEPassDTO(acmePassRepository.findOne(id));
+		User userObj = userDTO.getUser();
+		String userId = userObj.getLogin();
+		String myLogin = SecurityUtils.getCurrentUser();
+		
+		// Returns null if not my login - UI shows: "Not found"
+		if (userId.equals(myLogin)) {
+			return userDTO;
+        } else {
+        	return null;
+        }
 	}
 
 	/**

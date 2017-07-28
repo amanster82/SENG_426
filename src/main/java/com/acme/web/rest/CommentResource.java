@@ -6,6 +6,7 @@ import com.acme.domain.Comment;
 import com.acme.repository.CommentRepository;
 import com.acme.web.rest.util.HeaderUtil;
 import io.swagger.annotations.ApiParam;
+import net.logstash.logback.encoder.org.apache.commons.lang.StringEscapeUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,25 +72,25 @@ public class CommentResource {
 			Matcher matcher = pattern.matcher(unsanitized);
 
 			if (matcher.matches()) {
-				sb.append(matcher.group(1).replaceAll("<", "&lg;").replaceAll(">", "&gt;"));
+				
+				sb.append(StringEscapeUtils.escapeHtml(matcher.group(1)));
 
 				String tagName = matcher.group(2);
 
 				if (tagName.equals("url")) {
-					sb.append("<a href='").append(matcher.group(3)).append("'>")
-						.append(matcher.group(3)).append("</a>");
+					sb.append("<a href='").append(StringEscapeUtils.escapeHtml(matcher.group(3))).append("'>")
+						.append(StringEscapeUtils.escapeHtml(matcher.group(3))).append("</a>");
 				} else {
-					sb.append("<").append(tagName).append(">").append(matcher.group(3))
+					sb.append("<").append(tagName).append(">").append(StringEscapeUtils.escapeHtml(matcher.group(3)))
 						.append("</").append(tagName).append(">");
 				}
 
 				unsanitized = matcher.group(4);
 			} else {
-				sb.append(unsanitized.replaceAll("<", "&lg;").replaceAll(">", "&gt;"));
+				sb.append(StringEscapeUtils.escapeHtml(unsanitized));
 				unsanitized = "";
 			}
 		}
-
 		return sb.toString();
 	}
 
